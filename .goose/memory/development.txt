@@ -129,17 +129,3 @@ heynow project - added vibes mode:
 - updated all UI elements to support vibes mode
 - mode selector now has three options: cosmos, matrix, vibes
 
-# heynow voice-notes hyperspace-mode ui rainbow
-heynow project - added hyperspace mode:
-- created fourth visualization mode called "hyperspace"
-- inspired by multicolor light streak effect from provided image
-- voice notes appear as radiating rainbow light streams from center
-- each voice note gets unique rainbow gradient based on its index
-- streams animate outward continuously, faster when playing
-- black background with radial gradient overlay
-- own voice notes appear green, others get rainbow colors
-- updated all UI elements to support hyperspace mode
-- rainbow gradient border on record button
-- gradient text for hyperspace mode labels
-- mode selector now has four options: cosmos, matrix, vibes, hyperspace
-
