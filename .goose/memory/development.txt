@@ -157,3 +157,14 @@ heynow project - added continuous animation to matrix mode:
 - animations continue even when voice notes aren't playing
 - creates more dynamic, living matrix effect
 
+# heynow voice-notes matrix-mode performance optimization
+heynow project - optimized matrix mode performance:
+- removed requestAnimationFrame loops in favor of CSS animations
+- reduced character count from dynamic to fixed 15 per bar
+- eliminated state updates for character positions
+- used pure CSS matrixFall animation for movement
+- reduced background ambient characters from 20 to 10
+- characters generated once with useMemo instead of continuous updates
+- smooth transitions for opacity changes
+- significantly improved performance and reduced CPU usage
+
