@@ -434,7 +434,7 @@ export function VoiceNote({ voiceNote }: VoiceNoteProps) {
           animation: 'toastFadeIn 0.5s ease-out forwards',
         }}
       >
-        <div className="bg-black/80 backdrop-blur-md px-6 py-3 rounded-full text-sm text-gray-300 shadow-2xl flex items-center gap-3 border border-gray-800">
+        <div className="bg-black/80 backdrop-blur-md px-4 py-2 rounded-full text-xs text-gray-300 shadow-2xl flex items-center gap-2 border border-gray-800">
           <span className="font-medium text-white">{displayName}</span>
           <span className="text-gray-500">•</span>
           <span className="text-gray-400">
