@@ -30,12 +30,12 @@ export function VoiceNote({ voiceNote, allVoiceNotes, positions, onPositionUpdat
   
   // Random movement parameters for each orb
   const movementParams = useRef({
-    speedX: (Math.random() - 0.5) * 0.0005, // -0.00025 to 0.00025 per frame
-    speedY: (Math.random() - 0.5) * 0.0005,
+    speedX: (Math.random() - 0.5) * 0.002, // -0.001 to 0.001 per frame
+    speedY: (Math.random() - 0.5) * 0.002,
     wobbleX: Math.random() * Math.PI * 2,
     wobbleY: Math.random() * Math.PI * 2,
-    wobbleSpeedX: 0.00005 + Math.random() * 0.00005,
-    wobbleSpeedY: 0.00005 + Math.random() * 0.00005,
+    wobbleSpeedX: 0.0001 + Math.random() * 0.0001,
+    wobbleSpeedY: 0.0001 + Math.random() * 0.0001,
     wobbleAmplitudeX: 1 + Math.random() * 1.5,
     wobbleAmplitudeY: 1 + Math.random() * 1.5,
   }).current;
@@ -76,8 +76,10 @@ export function VoiceNote({ voiceNote, allVoiceNotes, positions, onPositionUpdat
           newX += wobbleOffsetX;
           newY += wobbleOffsetY;
           
-          // Check collision with other orbs
+          // Define orb radius once
           const orbRadius = 3; // Approximate radius in percentage
+          
+          // Check collision with other orbs
           allVoiceNotes.forEach(otherNote => {
             if (otherNote.id !== voiceNote.id) {
               const otherPos = positions.get(otherNote.id) || { x: otherNote.x || 50, y: otherNote.y || 50 };
@@ -103,13 +105,23 @@ export function VoiceNote({ voiceNote, allVoiceNotes, positions, onPositionUpdat
           
           // Bounce off edges with some padding
           const padding = 5; // 5% from edge
-          if (newX <= padding || newX >= 100 - padding) {
-            movementParams.speedX *= -1;
-            newX = Math.max(padding, Math.min(100 - padding, newX));
+          
+          // Check X boundaries
+          if (newX <= padding + orbRadius) {
+            movementParams.speedX = Math.abs(movementParams.speedX); // Force positive
+            newX = padding + orbRadius + 0.1; // Push slightly inside
+          } else if (newX >= 100 - padding - orbRadius) {
+            movementParams.speedX = -Math.abs(movementParams.speedX); // Force negative
+            newX = 100 - padding - orbRadius - 0.1; // Push slightly inside
           }
-          if (newY <= padding || newY >= 100 - padding) {
-            movementParams.speedY *= -1;
-            newY = Math.max(padding, Math.min(100 - padding, newY));
+          
+          // Check Y boundaries
+          if (newY <= padding + orbRadius) {
+            movementParams.speedY = Math.abs(movementParams.speedY); // Force positive
+            newY = padding + orbRadius + 0.1; // Push slightly inside
+          } else if (newY >= 100 - padding - orbRadius) {
+            movementParams.speedY = -Math.abs(movementParams.speedY); // Force negative
+            newY = 100 - padding - orbRadius - 0.1; // Push slightly inside
           }
           
           // Update shared position
