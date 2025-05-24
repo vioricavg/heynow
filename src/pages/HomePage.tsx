@@ -4,6 +4,7 @@ import { useAutoAccount } from '@/hooks/useAutoAccount';
 import { usePublishProfile } from '@/hooks/usePublishProfile';
 import { VoiceNote } from '@/components/VoiceNote';
 import { MatrixVoiceBar } from '@/components/MatrixVoiceBar';
+import { VibesVoiceWave } from '@/components/VibesVoiceWave';
 import { RecordButton } from '@/components/RecordButton';
 import { useViewMode } from '@/contexts/ViewModeContext';
 
@@ -101,7 +102,7 @@ export function HomePage() {
   }
 
   return (
-    <div className={`fixed inset-0 overflow-hidden ${viewMode === 'matrix' ? 'bg-black' : 'bg-black'}`}>
+    <div className={`fixed inset-0 overflow-hidden ${viewMode === 'vibes' ? 'bg-gradient-to-b from-purple-950/20 to-black' : 'bg-black'}`}>
       {/* Mode selector */}
       <div className="absolute top-8 left-8 z-50">
         <div className="flex items-center gap-2">
@@ -125,13 +126,23 @@ export function HomePage() {
           >
             matrix
           </button>
+          <button
+            onClick={() => setViewMode('vibes')}
+            className={`px-3 py-1 text-xs rounded transition-all ${
+              viewMode === 'vibes' 
+                ? 'bg-purple-900/50 text-purple-400' 
+                : 'bg-white/5 text-gray-600 hover:bg-purple-900/30 hover:text-purple-600'
+            }`}
+          >
+            vibes
+          </button>
         </div>
       </div>
       
       {/* User info */}
       <div className="absolute top-8 right-8 text-right z-50">
-        <div className={`text-xs ${viewMode === 'matrix' ? 'text-green-600' : 'text-gray-600'}`}>you are</div>
-        <div className={`text-sm ${viewMode === 'matrix' ? 'text-green-400 font-mono' : 'text-gray-400'}`}>{user?.name}</div>
+        <div className={`text-xs ${viewMode === 'matrix' ? 'text-green-600' : viewMode === 'vibes' ? 'text-purple-600' : 'text-gray-600'}`}>you are</div>
+        <div className={`text-sm ${viewMode === 'matrix' ? 'text-green-400 font-mono' : viewMode === 'vibes' ? 'text-purple-400' : 'text-gray-400'}`}>{user?.name}</div>
       </div>
 
       {/* Voice notes canvas */}
@@ -146,7 +157,7 @@ export function HomePage() {
               />
             ))}
           </>
-        ) : (
+        ) : viewMode === 'matrix' ? (
           // Matrix mode - vertical bars
           <div className="relative w-full h-full">
             {/* Matrix background effect */}
@@ -163,21 +174,38 @@ export function HomePage() {
               />
             ))}
           </div>
+        ) : (
+          // Vibes mode - flowing waves
+          <div className="relative w-full h-full">
+            {/* Vibes background effect */}
+            <div className="absolute inset-0 opacity-20">
+              <div className="h-full w-full bg-gradient-to-t from-purple-600/10 via-transparent to-transparent" />
+            </div>
+            
+            {memoizedVoiceNotes.map((voiceNote, index) => (
+              <VibesVoiceWave
+                key={voiceNote.id}
+                voiceNote={voiceNote}
+                index={index}
+                totalWaves={memoizedVoiceNotes.length || 1}
+              />
+            ))}
+          </div>
         )}
         
         {isLoading && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            <div className={`text-xs ${viewMode === 'matrix' ? 'text-green-700 font-mono' : 'text-gray-700'}`}>
-              {viewMode === 'matrix' ? 'connecting to matrix...' : 'listening to the void...'}
+            <div className={`text-xs ${viewMode === 'matrix' ? 'text-green-700 font-mono' : viewMode === 'vibes' ? 'text-purple-700' : 'text-gray-700'}`}>
+              {viewMode === 'matrix' ? 'connecting to matrix...' : viewMode === 'vibes' ? 'tuning into the vibes...' : 'listening to the void...'}
             </div>
           </div>
         )}
         
         {!isLoading && memoizedVoiceNotes.length === 0 && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            <div className={`text-xs text-center ${viewMode === 'matrix' ? 'text-green-700 font-mono' : 'text-gray-700'}`}>
-              <div>{viewMode === 'matrix' ? 'no signals detected' : 'the cosmos is silent'}</div>
-              <div className="mt-2">{viewMode === 'matrix' ? 'upload your voice' : 'be the first voice'}</div>
+            <div className={`text-xs text-center ${viewMode === 'matrix' ? 'text-green-700 font-mono' : viewMode === 'vibes' ? 'text-purple-700' : 'text-gray-700'}`}>
+              <div>{viewMode === 'matrix' ? 'no signals detected' : viewMode === 'vibes' ? 'no vibes yet' : 'the cosmos is silent'}</div>
+              <div className="mt-2">{viewMode === 'matrix' ? 'upload your voice' : viewMode === 'vibes' ? 'share your vibe' : 'be the first voice'}</div>
             </div>
           </div>
         )}
@@ -187,8 +215,8 @@ export function HomePage() {
       <RecordButton />
       
       {/* Instructions */}
-      <div className={`absolute bottom-8 left-8 text-xs ${viewMode === 'matrix' ? 'text-green-700 font-mono' : 'text-gray-700'}`}>
-        {viewMode === 'matrix' ? 'hover bars to decode • click + to transmit' : 'click to listen • click + to speak'}
+      <div className={`absolute bottom-8 left-8 text-xs ${viewMode === 'matrix' ? 'text-green-700 font-mono' : viewMode === 'vibes' ? 'text-purple-700' : 'text-gray-700'}`}>
+        {viewMode === 'matrix' ? 'hover bars to decode • click + to transmit' : viewMode === 'vibes' ? 'click waves to feel • click + to vibe' : 'click to listen • click + to speak'}
       </div>
     </div>
   );

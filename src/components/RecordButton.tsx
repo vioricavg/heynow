@@ -187,6 +187,8 @@ export function RecordButton() {
           ? 'bg-red-500 hover:bg-red-600 scale-110' 
           : viewMode === 'matrix'
             ? 'bg-green-900/50 hover:bg-green-800/50 backdrop-blur border border-green-500/50'
+            : viewMode === 'vibes'
+            ? 'bg-purple-900/50 hover:bg-purple-800/50 backdrop-blur border border-purple-500/50'
             : 'bg-white/10 hover:bg-white/20 backdrop-blur'
         }
         ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}
@@ -196,17 +198,19 @@ export function RecordButton() {
         animation: isRecording ? 'slowPulse 1.5s ease-in-out infinite' : 'none',
         boxShadow: viewMode === 'matrix' && !isRecording 
           ? '0 0 20px rgba(34, 197, 94, 0.5)' 
+          : viewMode === 'vibes' && !isRecording
+          ? '0 0 20px rgba(147, 51, 234, 0.5)'
           : undefined
       }}
     >
       {isUploading ? (
         <div className={`animate-spin rounded-full h-6 w-6 border-2 ${
-          viewMode === 'matrix' ? 'border-green-400' : 'border-white'
+          viewMode === 'matrix' ? 'border-green-400' : viewMode === 'vibes' ? 'border-purple-400' : 'border-white'
         } border-t-transparent`} />
       ) : isRecording ? (
         <Mic className="w-6 h-6 text-white" />
       ) : (
-        <Plus className={`w-6 h-6 ${viewMode === 'matrix' ? 'text-green-400' : 'text-white'}`} />
+        <Plus className={`w-6 h-6 ${viewMode === 'matrix' ? 'text-green-400' : viewMode === 'vibes' ? 'text-purple-400' : 'text-white'}`} />
       )}
     </button>
   );

@@ -110,3 +110,22 @@ heynow project - performance optimization and cleanup:
 - simplified tailwind config and removed CSS variables
 - clean, minimal codebase focused only on voice notes
 
+# heynow voice-notes timing
+heynow project - changed time window to 21 minutes:
+- voice notes now only display for the last 21 minutes (was 15 minutes)
+- orbs start fading at 20 minutes old (was 14 minutes)
+- linear fade from full opacity to transparent over the last minute
+- updated README to reflect 21-minute window
+- makes the app have a longer temporal window for conversations
+
+# heynow voice-notes vibes-mode ui
+heynow project - added vibes mode:
+- created third visualization mode called "vibes"
+- vibes mode displays voice notes as animated sine waves
+- waves flow horizontally across the screen
+- purple color scheme (green for own notes, purple for others)
+- waves animate continuously when playing audio
+- gradient background with purple tones
+- updated all UI elements to support vibes mode
+- mode selector now has three options: cosmos, matrix, vibes
+
