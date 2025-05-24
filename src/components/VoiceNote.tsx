@@ -7,12 +7,9 @@ import { formatDistanceToNow } from 'date-fns';
 
 interface VoiceNoteProps {
   voiceNote: VoiceNoteType;
-  allVoiceNotes: VoiceNoteType[];
-  positions: Map<string, { x: number; y: number }>;
-  onPositionUpdate: (id: string, position: { x: number; y: number }) => void;
 }
 
-export function VoiceNote({ voiceNote, allVoiceNotes, positions, onPositionUpdate }: VoiceNoteProps) {
+export function VoiceNote({ voiceNote }: VoiceNoteProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
@@ -30,20 +27,15 @@ export function VoiceNote({ voiceNote, allVoiceNotes, positions, onPositionUpdat
   
   // Random movement parameters for each orb
   const movementParams = useRef({
-    speedX: (Math.random() - 0.5) * 0.01, // -0.005 to 0.005 per frame
-    speedY: (Math.random() - 0.5) * 0.01,
+    speedX: (Math.random() - 0.5) * 0.04, // -0.02 to 0.02 per frame (faster)
+    speedY: (Math.random() - 0.5) * 0.04,
     wobbleX: Math.random() * Math.PI * 2,
     wobbleY: Math.random() * Math.PI * 2,
-    wobbleSpeedX: 0.0001 + Math.random() * 0.0001,
-    wobbleSpeedY: 0.0001 + Math.random() * 0.0001,
+    wobbleSpeedX: 0.0002 + Math.random() * 0.0002,
+    wobbleSpeedY: 0.0002 + Math.random() * 0.0002,
     wobbleAmplitudeX: 0.5 + Math.random() * 1,
     wobbleAmplitudeY: 0.5 + Math.random() * 1,
   }).current;
-  
-  // Update position in parent component
-  useEffect(() => {
-    onPositionUpdate(voiceNote.id, position);
-  }, [position, voiceNote.id, onPositionUpdate]);
   
   useEffect(() => {
     if (audioRef.current) {
@@ -81,53 +73,56 @@ export function VoiceNote({ voiceNote, allVoiceNotes, positions, onPositionUpdat
           newX += wobbleOffsetX;
           newY += wobbleOffsetY;
           
-          // Define orb radius once
-          const orbRadius = 3; // Approximate radius in percentage
-          const padding = 3; // 3% from edge
+          // Define edge detection zones
+          const hardBoundary = 5; // 5% from edge - absolute boundary
+          const softBoundary = 15; // 15% from edge - start turning away
           
-          // Simple edge bouncing - check position without collision first
-          if (newX <= padding) {
-            newX = padding + 0.1;
-            movementParams.speedX = Math.abs(movementParams.speedX) * 0.8;
-          } else if (newX >= 100 - padding) {
-            newX = 100 - padding - 0.1;
-            movementParams.speedX = -Math.abs(movementParams.speedX) * 0.8;
+          // Soft edge avoidance - gradually turn away when approaching edges
+          if (prev.x <= softBoundary && movementParams.speedX < 0) {
+            // Approaching left edge
+            const edgeDistance = prev.x;
+            const turnForce = (softBoundary - edgeDistance) / softBoundary * 0.008; // Increased turn force for faster speed
+            movementParams.speedX += turnForce;
+          } else if (prev.x >= 100 - softBoundary && movementParams.speedX > 0) {
+            // Approaching right edge
+            const edgeDistance = 100 - prev.x;
+            const turnForce = (softBoundary - edgeDistance) / softBoundary * 0.008;
+            movementParams.speedX -= turnForce;
           }
           
-          if (newY <= padding) {
-            newY = padding + 0.1;
-            movementParams.speedY = Math.abs(movementParams.speedY) * 0.8;
-          } else if (newY >= 100 - padding) {
-            newY = 100 - padding - 0.1;
-            movementParams.speedY = -Math.abs(movementParams.speedY) * 0.8;
+          if (prev.y <= softBoundary && movementParams.speedY < 0) {
+            // Approaching top edge
+            const edgeDistance = prev.y;
+            const turnForce = (softBoundary - edgeDistance) / softBoundary * 0.008;
+            movementParams.speedY += turnForce;
+          } else if (prev.y >= 100 - softBoundary && movementParams.speedY > 0) {
+            // Approaching bottom edge
+            const edgeDistance = 100 - prev.y;
+            const turnForce = (softBoundary - edgeDistance) / softBoundary * 0.008;
+            movementParams.speedY -= turnForce;
           }
           
-          // Check collision with other orbs only after edge handling
-          let collisionOccurred = false;
-          allVoiceNotes.forEach(otherNote => {
-            if (otherNote.id !== voiceNote.id && !collisionOccurred) {
-              const otherPos = positions.get(otherNote.id) || { x: otherNote.x || 50, y: otherNote.y || 50 };
-              const dx = newX - otherPos.x;
-              const dy = newY - otherPos.y;
-              const distance = Math.sqrt(dx * dx + dy * dy);
-              
-              if (distance < orbRadius * 2 && distance > 0) {
-                // Simple bounce - just reverse direction
-                movementParams.speedX *= -0.8;
-                movementParams.speedY *= -0.8;
-                collisionOccurred = true;
-                
-                // Move away from collision
-                const angle = Math.atan2(dy, dx);
-                newX = otherPos.x + Math.cos(angle) * orbRadius * 2.1;
-                newY = otherPos.y + Math.sin(angle) * orbRadius * 2.1;
-              }
-            }
-          });
+          // Hard boundary - ensure orbs never go past this point
+          if (newX <= hardBoundary) {
+            newX = hardBoundary;
+            movementParams.speedX = Math.abs(movementParams.speedX);
+          } else if (newX >= 100 - hardBoundary) {
+            newX = 100 - hardBoundary;
+            movementParams.speedX = -Math.abs(movementParams.speedX);
+          }
           
-          // Ensure position stays in bounds
-          newX = Math.max(padding, Math.min(100 - padding, newX));
-          newY = Math.max(padding, Math.min(100 - padding, newY));
+          if (newY <= hardBoundary) {
+            newY = hardBoundary;
+            movementParams.speedY = Math.abs(movementParams.speedY);
+          } else if (newY >= 100 - hardBoundary) {
+            newY = 100 - hardBoundary;
+            movementParams.speedY = -Math.abs(movementParams.speedY);
+          }
+          
+          // Limit max speed to prevent erratic movement
+          const maxSpeed = 0.06; // Increased max speed
+          movementParams.speedX = Math.max(-maxSpeed, Math.min(maxSpeed, movementParams.speedX));
+          movementParams.speedY = Math.max(-maxSpeed, Math.min(maxSpeed, movementParams.speedY));
           
           return { x: newX, y: newY };
         });
@@ -143,7 +138,7 @@ export function VoiceNote({ voiceNote, allVoiceNotes, positions, onPositionUpdat
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [isHovered, movementParams, voiceNote.id, allVoiceNotes, positions]);
+  }, [movementParams, voiceNote.id, isHovered]);
 
   const handleMouseEnter = () => {
     setIsHovered(true);

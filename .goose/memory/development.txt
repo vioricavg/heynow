@@ -47,3 +47,38 @@ heynow project - removed all localStorage usage:
 - all data stored on nostr network and blossom servers only
 - truly ephemeral voices in the cosmos
 
+# heynow voicenotes animation
+heynow project - removed collision detection from voice note orbs:
+- orbs now move continuously without stopping when hovered
+- simplified edge bouncing logic with 5% padding from screen edges
+- removed position tracking between components
+- removed collision detection between orbs
+- cleaner code with fewer dependencies
+
+# heynow voicenotes animation edge-detection
+heynow project - improved edge avoidance for orbs:
+- implemented soft boundary at 15% from edge where orbs start turning away
+- hard boundary at 5% from edge as absolute limit
+- gradual turn force applied when approaching edges (prevents sudden direction changes)
+- orbs now smoothly avoid edges before hitting them
+- added speed limiting to prevent erratic movement
+- turn force is proportional to distance from edge
+
+# heynow voicenotes animation speed
+heynow project - increased orb movement speed:
+- base speed increased 3x (from 0.01 to 0.03 max initial speed)
+- wobble speed doubled for more dynamic movement
+- turn force tripled (0.002 to 0.006) to handle faster speeds
+- max speed limit tripled (0.015 to 0.045)
+- orbs now move noticeably faster while maintaining smooth edge avoidance
+- all orbs have truly random initial directions
+
+# heynow voicenotes animation hover speed
+heynow project - orbs now stop on hover and move faster:
+- orbs completely stop moving when mouse hovers over them
+- base speed increased to 0.04 (4x original speed)
+- turn force increased to 0.008 to handle faster speeds
+- max speed limit increased to 0.06
+- animation loop only updates position when not hovered
+- creates better interaction for listening to voice notes
+
