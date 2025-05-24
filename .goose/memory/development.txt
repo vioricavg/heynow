@@ -82,3 +82,12 @@ heynow project - orbs now stop on hover and move faster:
 - animation loop only updates position when not hovered
 - creates better interaction for listening to voice notes
 
+# heynow voicenotes animation fade temporal
+heynow project - added fade out for aging voice notes:
+- orbs start fading at 9 minutes old
+- linear fade from full opacity to transparent over the last minute
+- opacity updates every second
+- smooth transition with 1-second duration
+- orbs completely disappear at 10 minutes
+- maintains temporal nature of the app
+
