@@ -7,9 +7,12 @@ import { formatDistanceToNow } from 'date-fns';
 
 interface VoiceNoteProps {
   voiceNote: VoiceNoteType;
+  allVoiceNotes: VoiceNoteType[];
+  positions: Map<string, { x: number; y: number }>;
+  onPositionUpdate: (id: string, position: { x: number; y: number }) => void;
 }
 
-export function VoiceNote({ voiceNote }: VoiceNoteProps) {
+export function VoiceNote({ voiceNote, allVoiceNotes, positions, onPositionUpdate }: VoiceNoteProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
@@ -73,6 +76,31 @@ export function VoiceNote({ voiceNote }: VoiceNoteProps) {
           newX += wobbleOffsetX;
           newY += wobbleOffsetY;
           
+          // Check collision with other orbs
+          const orbRadius = 3; // Approximate radius in percentage
+          allVoiceNotes.forEach(otherNote => {
+            if (otherNote.id !== voiceNote.id) {
+              const otherPos = positions.get(otherNote.id) || { x: otherNote.x || 50, y: otherNote.y || 50 };
+              const dx = newX - otherPos.x;
+              const dy = newY - otherPos.y;
+              const distance = Math.sqrt(dx * dx + dy * dy);
+              
+              if (distance < orbRadius * 2) {
+                // Collision detected, bounce away
+                const angle = Math.atan2(dy, dx);
+                const targetDistance = orbRadius * 2;
+                const pushDistance = targetDistance - distance;
+                
+                newX += Math.cos(angle) * pushDistance * 0.5;
+                newY += Math.sin(angle) * pushDistance * 0.5;
+                
+                // Reverse velocity
+                movementParams.speedX *= -0.8;
+                movementParams.speedY *= -0.8;
+              }
+            }
+          });
+          
           // Bounce off edges with some padding
           const padding = 5; // 5% from edge
           if (newX <= padding || newX >= 100 - padding) {
@@ -83,6 +111,9 @@ export function VoiceNote({ voiceNote }: VoiceNoteProps) {
             movementParams.speedY *= -1;
             newY = Math.max(padding, Math.min(100 - padding, newY));
           }
+          
+          // Update shared position
+          onPositionUpdate(voiceNote.id, { x: newX, y: newY });
           
           return { x: newX, y: newY };
         });
@@ -98,7 +129,7 @@ export function VoiceNote({ voiceNote }: VoiceNoteProps) {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [isHovered, movementParams]);
+  }, [isHovered, movementParams, voiceNote.id, allVoiceNotes, positions, onPositionUpdate]);
 
   const handleMouseEnter = () => {
     setIsHovered(true);

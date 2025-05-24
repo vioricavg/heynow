@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useVoiceNotes } from '@/hooks/useVoiceNotes';
 import { useAutoAccount } from '@/hooks/useAutoAccount';
 import { usePublishProfile } from '@/hooks/usePublishProfile';
@@ -8,9 +8,24 @@ import { RecordButton } from '@/components/RecordButton';
 export function HomePage() {
   const { user, isReady } = useAutoAccount();
   const { data: voiceNotes, isLoading } = useVoiceNotes();
+  const [positions, setPositions] = useState<Map<string, { x: number; y: number }>>(new Map());
+  const positionsRef = useRef(positions);
+  
+  // Keep ref in sync with state
+  useEffect(() => {
+    positionsRef.current = positions;
+  }, [positions]);
   
   // Publish profile metadata
   usePublishProfile();
+  
+  const handlePositionUpdate = (id: string, position: { x: number; y: number }) => {
+    setPositions(prev => {
+      const newMap = new Map(prev);
+      newMap.set(id, position);
+      return newMap;
+    });
+  };
 
   useEffect(() => {
     // Add custom styles for floating and breathing animations
@@ -108,7 +123,13 @@ export function HomePage() {
       {/* Voice notes canvas */}
       <div className="relative w-full h-full">
         {voiceNotes?.map((voiceNote) => (
-          <VoiceNote key={voiceNote.id} voiceNote={voiceNote} />
+          <VoiceNote 
+            key={voiceNote.id} 
+            voiceNote={voiceNote}
+            allVoiceNotes={voiceNotes}
+            positions={positionsRef.current}
+            onPositionUpdate={handlePositionUpdate}
+          />
         ))}
         
         {isLoading && (
