@@ -1,0 +1,49 @@
+# nostr, voice-notes, heynow, react, vite
+heynow project - a nostr voice note application:
+
+## key features:
+- users can record and share voice notes on the nostr network
+- voice notes appear as floating orbs on a black background
+- automatic account generation with cosmic-themed names
+- no login required - uses local storage for user persistence
+- voice notes use kind 1069 events with audio urls
+- audio files uploaded to blossom servers
+
+## tech stack:
+- react 18.x with typescript
+- vite for build tooling
+- tailwindcss for styling
+- shadcn/ui components
+- nostrify for nostr protocol
+- tanstack query for data fetching
+- nostr-tools for crypto operations
+
+## important commands:
+- npm run ci - typecheck and build (use after modifications)
+- npm run dev - development server (never run this)
+- npm run build - production build
+
+## project structure:
+- /src/components/ - ui components
+- /src/hooks/ - custom react hooks
+- /src/pages/ - page components
+- /src/lib/ - utilities
+- autoaccount generates random cosmic names
+- uses npool for relay management
+
+# nostr, heynow, no-localstorage, ephemeral
+heynow project - removed all localStorage usage:
+
+## changes made:
+- removed localStorage from useAutoAccount hook
+- now generates ephemeral keypair for each session
+- stores user data in memory only (sessionUser variable)
+- removed localStorage from usePublishProfile hook  
+- uses useRef to track if profile has been published
+
+## behavior:
+- each page refresh creates a new identity
+- private keys never persisted
+- all data stored on nostr network and blossom servers only
+- truly ephemeral voices in the cosmos
+

@@ -1,18 +1,7 @@
-// NOTE: This file should normally not be modified unless you are adding a new provider.
-// To add new routes, edit the AppRouter.tsx file.
-
-import NostrProvider from '@/components/NostrProvider'
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { NostrLoginProvider } from '@nostrify/react/login';
-import AppRouter from './AppRouter';
-
-// DO NOT MODIFY THIS LIST UNLESS YOU ARE ABSOLUTELY CERTAIN EACH RELAY URL YOU ARE ADDING IS VALID AND THE RELAY IS CURRENTLY ONLINE AND CONFIRMED TO BE FULLY FUNCTIONAL AND WORKING.
-const defaultRelays = [
-  'wss://relay.nostr.band', // DO NOT MODIFY THIS UNLESS EXPLICITLY REQUESTED
-];
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AutoNostrProvider } from '@/components/AutoNostrProvider';
+import { HomePage } from '@/pages/HomePage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,19 +13,17 @@ const queryClient = new QueryClient({
   },
 });
 
-export function App() {
+function App() {
   return (
-    <NostrLoginProvider storageKey='nostr:login'>
-      <NostrProvider relays={defaultRelays}>
-        <QueryClientProvider client={queryClient}>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <AppRouter />
-          </TooltipProvider>
-        </QueryClientProvider>
-      </NostrProvider>
-    </NostrLoginProvider>
+    <QueryClientProvider client={queryClient}>
+      <AutoNostrProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+          </Routes>
+        </Router>
+      </AutoNostrProvider>
+    </QueryClientProvider>
   );
 }
 

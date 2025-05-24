@@ -1,7 +1,7 @@
 import { useNostr } from "@nostrify/react";
 import { useMutation } from "@tanstack/react-query";
-
-import { useCurrentUser } from "./useCurrentUser";
+import { createSigner } from '@/lib/createSigner';
+import { useAutoAccount } from './useAutoAccount';
 
 interface EventTemplate {
   kind: number;
@@ -12,7 +12,7 @@ interface EventTemplate {
 
 export function useNostrPublish() {
   const { nostr } = useNostr();
-  const { user } = useCurrentUser();
+  const { user } = useAutoAccount();
 
   return useMutation({
     mutationFn: async (t: EventTemplate) => {
@@ -21,11 +21,14 @@ export function useNostrPublish() {
 
         // Add the client tag if it doesn't exist
         if (!tags.some((tag) => tag[0] === "client")) {
-          // FIXME: Replace "mkstack" with the actual client name
-          tags.push(["client", "mkstack"]);
+          tags.push(["client", "heynow"]);
         }
 
-        const event = await user.signer.signEvent({
+        // Create signer from stored secret key
+        const secretKey = new Uint8Array(user.secretKey);
+        const signer = createSigner(secretKey);
+
+        const event = await signer.signEvent({
           kind: t.kind,
           content: t.content ?? "",
           tags,
@@ -34,7 +37,7 @@ export function useNostrPublish() {
 
         await nostr.event(event, { signal: AbortSignal.timeout(5000) });
       } else {
-        throw new Error("User is not logged in");
+        throw new Error("User is not initialized");
       }
     },
     onError: (error) => {

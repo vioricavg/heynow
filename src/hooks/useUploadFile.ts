@@ -1,22 +1,26 @@
 import { useMutation } from "@tanstack/react-query";
 import { BlossomUploader } from '@nostrify/nostrify/uploaders';
-
-import { useCurrentUser } from "./useCurrentUser";
+import { createSigner } from '@/lib/createSigner';
+import { useAutoAccount } from './useAutoAccount';
 
 export function useUploadFile() {
-  const { user } = useCurrentUser();
+  const { user } = useAutoAccount();
 
   return useMutation({
     mutationFn: async (file: File) => {
       if (!user) {
-        throw new Error('Must be logged in to upload files');
+        throw new Error('User not initialized');
       }
+
+      // Create signer from stored secret key
+      const secretKey = new Uint8Array(user.secretKey);
+      const signer = createSigner(secretKey);
 
       const uploader = new BlossomUploader({
         servers: [
           'https://blossom.primal.net/',
         ],
-        signer: user.signer,
+        signer,
       });
 
       const tags = await uploader.upload(file);

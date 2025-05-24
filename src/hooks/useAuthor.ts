@@ -12,9 +12,25 @@ export function useAuthor(pubkey: string | undefined) {
         return {};
       }
 
+      // Create abort signal - use fallback for Safari compatibility
+      let querySignal: AbortSignal;
+      if ('any' in AbortSignal && typeof AbortSignal.any === 'function') {
+        querySignal = AbortSignal.any([signal, AbortSignal.timeout(1500)]);
+      } else {
+        // Fallback for browsers without AbortSignal.any
+        const controller = new AbortController();
+        querySignal = controller.signal;
+        
+        // Set timeout manually
+        setTimeout(() => controller.abort(), 1500);
+        
+        // Also abort if the query is cancelled
+        signal.addEventListener('abort', () => controller.abort());
+      }
+
       const [event] = await nostr.query(
         [{ kinds: [0], authors: [pubkey!], limit: 1 }],
-        { signal: AbortSignal.any([signal, AbortSignal.timeout(1500)]) },
+        { signal: querySignal },
       );
 
       if (!event) {

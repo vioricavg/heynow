@@ -13,4 +13,4 @@ tsconfig.node.json
 postcss.config.js
 
 # vite config is stable and usually should not need to be edited
-vite.config.ts
+#vite.config.ts
