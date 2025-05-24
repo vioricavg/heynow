@@ -1,16 +1,22 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useVoiceNotes } from '@/hooks/useVoiceNotes';
 import { useAutoAccount } from '@/hooks/useAutoAccount';
 import { usePublishProfile } from '@/hooks/usePublishProfile';
 import { VoiceNote } from '@/components/VoiceNote';
+import { MatrixVoiceBar } from '@/components/MatrixVoiceBar';
 import { RecordButton } from '@/components/RecordButton';
+import { useViewMode } from '@/contexts/ViewModeContext';
 
 export function HomePage() {
   const { user, isReady } = useAutoAccount();
   const { data: voiceNotes, isLoading } = useVoiceNotes();
+  const { viewMode, setViewMode } = useViewMode();
   
   // Publish profile metadata
   usePublishProfile();
+
+  // Memoize voice notes to prevent unnecessary re-renders
+  const memoizedVoiceNotes = useMemo(() => voiceNotes || [], [voiceNotes]);
 
   useEffect(() => {
     // Add animation styles once
@@ -59,6 +65,23 @@ export function HomePage() {
           opacity: 0.5;
         }
       }
+      
+      @keyframes matrixFall {
+        0% {
+          transform: translateX(-50%) translateY(-100%);
+          opacity: 0;
+        }
+        10% {
+          opacity: 1;
+        }
+        90% {
+          opacity: 1;
+        }
+        100% {
+          transform: translateX(-50%) translateY(100vh);
+          opacity: 0;
+        }
+      }
     `;
     document.head.appendChild(style);
     
@@ -78,38 +101,83 @@ export function HomePage() {
   }
 
   return (
-    <div className="fixed inset-0 bg-black overflow-hidden">
-      {/* Title */}
-      <div className="absolute top-8 left-8 text-white/20 text-sm font-light tracking-widest">
-        heynow
+    <div className={`fixed inset-0 overflow-hidden ${viewMode === 'matrix' ? 'bg-black' : 'bg-black'}`}>
+      {/* Mode selector */}
+      <div className="absolute top-8 left-8 z-50">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setViewMode('cosmos')}
+            className={`px-3 py-1 text-xs rounded transition-all ${
+              viewMode === 'cosmos' 
+                ? 'bg-white/20 text-white' 
+                : 'bg-white/5 text-gray-600 hover:bg-white/10 hover:text-gray-400'
+            }`}
+          >
+            cosmos
+          </button>
+          <button
+            onClick={() => setViewMode('matrix')}
+            className={`px-3 py-1 text-xs rounded transition-all ${
+              viewMode === 'matrix' 
+                ? 'bg-green-900/50 text-green-400' 
+                : 'bg-white/5 text-gray-600 hover:bg-green-900/30 hover:text-green-600'
+            }`}
+          >
+            matrix
+          </button>
+        </div>
       </div>
       
       {/* User info */}
-      <div className="absolute top-8 right-8 text-right">
-        <div className="text-gray-600 text-xs">you are</div>
-        <div className="text-gray-400 text-sm">{user?.name}</div>
+      <div className="absolute top-8 right-8 text-right z-50">
+        <div className={`text-xs ${viewMode === 'matrix' ? 'text-green-600' : 'text-gray-600'}`}>you are</div>
+        <div className={`text-sm ${viewMode === 'matrix' ? 'text-green-400 font-mono' : 'text-gray-400'}`}>{user?.name}</div>
       </div>
 
       {/* Voice notes canvas */}
       <div className="relative w-full h-full">
-        {voiceNotes?.map((voiceNote) => (
-          <VoiceNote 
-            key={voiceNote.id} 
-            voiceNote={voiceNote}
-          />
-        ))}
-        
-        {isLoading && (
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            <div className="text-gray-700 text-xs">listening to the void...</div>
+        {viewMode === 'cosmos' ? (
+          // Cosmos mode - floating orbs
+          <>
+            {memoizedVoiceNotes.map((voiceNote) => (
+              <VoiceNote 
+                key={voiceNote.id} 
+                voiceNote={voiceNote}
+              />
+            ))}
+          </>
+        ) : (
+          // Matrix mode - vertical bars
+          <div className="relative w-full h-full">
+            {/* Matrix background effect */}
+            <div className="absolute inset-0 opacity-10">
+              <div className="h-full w-full bg-gradient-to-b from-green-400/20 to-transparent" />
+            </div>
+            
+            {memoizedVoiceNotes.map((voiceNote, index) => (
+              <MatrixVoiceBar
+                key={voiceNote.id}
+                voiceNote={voiceNote}
+                index={index}
+                totalBars={memoizedVoiceNotes.length || 1}
+              />
+            ))}
           </div>
         )}
         
-        {!isLoading && (!voiceNotes || voiceNotes.length === 0) && (
+        {isLoading && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            <div className="text-gray-700 text-xs text-center">
-              <div>the cosmos is silent</div>
-              <div className="mt-2">be the first voice</div>
+            <div className={`text-xs ${viewMode === 'matrix' ? 'text-green-700 font-mono' : 'text-gray-700'}`}>
+              {viewMode === 'matrix' ? 'connecting to matrix...' : 'listening to the void...'}
+            </div>
+          </div>
+        )}
+        
+        {!isLoading && memoizedVoiceNotes.length === 0 && (
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <div className={`text-xs text-center ${viewMode === 'matrix' ? 'text-green-700 font-mono' : 'text-gray-700'}`}>
+              <div>{viewMode === 'matrix' ? 'no signals detected' : 'the cosmos is silent'}</div>
+              <div className="mt-2">{viewMode === 'matrix' ? 'upload your voice' : 'be the first voice'}</div>
             </div>
           </div>
         )}
@@ -119,8 +187,8 @@ export function HomePage() {
       <RecordButton />
       
       {/* Instructions */}
-      <div className="absolute bottom-8 left-8 text-gray-700 text-xs">
-        click to listen • click + to speak
+      <div className={`absolute bottom-8 left-8 text-xs ${viewMode === 'matrix' ? 'text-green-700 font-mono' : 'text-gray-700'}`}>
+        {viewMode === 'matrix' ? 'hover bars to decode • click + to transmit' : 'click to listen • click + to speak'}
       </div>
     </div>
   );
