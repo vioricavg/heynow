@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, memo } from 'react';
+import { useEffect, useRef, useState, memo, useMemo } from 'react';
 import { VoiceNote as VoiceNoteType } from '@/hooks/useVoiceNotes';
 import { useAuthor } from '@/hooks/useAuthor';
 import { useAutoAccount } from '@/hooks/useAutoAccount';
@@ -24,8 +24,8 @@ export const MatrixVoiceBar = memo(function MatrixVoiceBar({ voiceNote, index, t
   const calculateOpacity = () => {
     const now = Math.floor(Date.now() / 1000);
     const age = now - voiceNote.timestamp;
-    const maxAge = 10 * 60; // 10 minutes
-    const fadeStartAge = 9 * 60; // Start fading at 9 minutes
+    const maxAge = 15 * 60; // 15 minutes
+    const fadeStartAge = 14 * 60; // Start fading at 14 minutes
     
     if (age >= maxAge) return 0;
     if (age >= fadeStartAge) {
@@ -87,9 +87,20 @@ export const MatrixVoiceBar = memo(function MatrixVoiceBar({ voiceNote, index, t
     }
   };
   
-  // Calculate bar position
-  const barWidth = 100 / totalBars;
-  const leftPosition = index * barWidth;
+  // Calculate bar position based on voice note ID (stable random position)
+  const leftPosition = useMemo(() => {
+    // Use voice note ID to generate a stable random position
+    let hash = 0;
+    for (let i = 0; i < voiceNote.id.length; i++) {
+      const char = voiceNote.id.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    // Generate position between 0 and 100% (full width)
+    return Math.abs(hash) % 100;
+  }, [voiceNote.id]);
+  
+  const barWidth = 100 / Math.max(totalBars, 10); // Ensure minimum bar count for width calculation
   
   // Generate falling characters
   const [characters, setCharacters] = useState<Array<{ char: string; offset: number }>>([]);
@@ -108,14 +119,24 @@ export const MatrixVoiceBar = memo(function MatrixVoiceBar({ voiceNote, index, t
     setCharacters(chars);
   }, []);
   
+  // Fade in animation for new bars
+  const [fadeIn, setFadeIn] = useState(false);
+  
+  useEffect(() => {
+    // Trigger fade in after component mounts
+    const timer = setTimeout(() => setFadeIn(true), 50);
+    return () => clearTimeout(timer);
+  }, []);
+  
   return (
     <div
-      className="absolute top-0 bottom-0 cursor-pointer transition-all duration-300"
+      className="absolute top-0 bottom-0 cursor-pointer"
       style={{
         left: `${leftPosition}%`,
         width: `${barWidth}%`,
-        opacity,
+        opacity: fadeIn ? opacity : 0,
         filter: isHovered ? 'brightness(1.5)' : 'brightness(1)',
+        transition: 'opacity 1s ease-in-out, filter 0.3s ease-in-out',
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

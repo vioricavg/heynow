@@ -13,7 +13,11 @@ export function ViewModeProvider({ children }: { children: ReactNode }) {
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     // Load saved preference
     const saved = localStorage.getItem('heynow-view-mode');
-    return (saved === 'matrix' || saved === 'cosmos') ? saved : 'cosmos';
+    if (saved === 'matrix' || saved === 'cosmos') {
+      return saved;
+    }
+    // Random default mode
+    return Math.random() < 0.5 ? 'cosmos' : 'matrix';
   });
 
   const updateViewMode = (mode: ViewMode) => {
