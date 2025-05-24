@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 
-type ViewMode = 'cosmos' | 'matrix' | 'vibes';
+type ViewMode = 'cosmos' | 'matrix' | 'vibes' | 'hyperspace';
 
 interface ViewModeContextType {
   viewMode: ViewMode;
@@ -13,7 +13,7 @@ export function ViewModeProvider({ children }: { children: ReactNode }) {
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     // Load saved preference
     const saved = localStorage.getItem('heynow-view-mode');
-    if (saved === 'matrix' || saved === 'cosmos' || saved === 'vibes') {
+    if (saved === 'matrix' || saved === 'cosmos' || saved === 'vibes' || saved === 'hyperspace') {
       return saved;
     }
     // Random default mode

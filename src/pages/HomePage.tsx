@@ -5,6 +5,7 @@ import { usePublishProfile } from '@/hooks/usePublishProfile';
 import { VoiceNote } from '@/components/VoiceNote';
 import { MatrixVoiceBar } from '@/components/MatrixVoiceBar';
 import { VibesVoiceWave } from '@/components/VibesVoiceWave';
+import { HyperspaceVoiceStream } from '@/components/HyperspaceVoiceStream';
 import { RecordButton } from '@/components/RecordButton';
 import { useViewMode } from '@/contexts/ViewModeContext';
 
@@ -102,7 +103,11 @@ export function HomePage() {
   }
 
   return (
-    <div className={`fixed inset-0 overflow-hidden ${viewMode === 'vibes' ? 'bg-gradient-to-b from-purple-950/20 to-black' : 'bg-black'}`}>
+    <div className={`fixed inset-0 overflow-hidden ${
+      viewMode === 'vibes' ? 'bg-gradient-to-b from-purple-950/20 to-black' : 
+      viewMode === 'hyperspace' ? 'bg-black' : 
+      'bg-black'
+    }`}>
       {/* Mode selector */}
       <div className="absolute top-8 left-8 z-50">
         <div className="flex items-center gap-2">
@@ -136,13 +141,33 @@ export function HomePage() {
           >
             vibes
           </button>
+          <button
+            onClick={() => setViewMode('hyperspace')}
+            className={`px-3 py-1 text-xs rounded transition-all ${
+              viewMode === 'hyperspace' 
+                ? 'bg-gradient-to-r from-red-500/50 via-yellow-500/50 to-blue-500/50 text-white' 
+                : 'bg-white/5 text-gray-600 hover:bg-gradient-to-r hover:from-red-500/20 hover:via-yellow-500/20 hover:to-blue-500/20 hover:text-gray-400'
+            }`}
+          >
+            hyperspace
+          </button>
         </div>
       </div>
       
       {/* User info */}
       <div className="absolute top-8 right-8 text-right z-50">
-        <div className={`text-xs ${viewMode === 'matrix' ? 'text-green-600' : viewMode === 'vibes' ? 'text-purple-600' : 'text-gray-600'}`}>you are</div>
-        <div className={`text-sm ${viewMode === 'matrix' ? 'text-green-400 font-mono' : viewMode === 'vibes' ? 'text-purple-400' : 'text-gray-400'}`}>{user?.name}</div>
+        <div className={`text-xs ${
+          viewMode === 'matrix' ? 'text-green-600' : 
+          viewMode === 'vibes' ? 'text-purple-600' : 
+          viewMode === 'hyperspace' ? 'text-cyan-600' :
+          'text-gray-600'
+        }`}>you are</div>
+        <div className={`text-sm ${
+          viewMode === 'matrix' ? 'text-green-400 font-mono' : 
+          viewMode === 'vibes' ? 'text-purple-400' : 
+          viewMode === 'hyperspace' ? 'text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-yellow-400 to-blue-400' :
+          'text-gray-400'
+        }`}>{user?.name}</div>
       </div>
 
       {/* Voice notes canvas */}
@@ -174,7 +199,7 @@ export function HomePage() {
               />
             ))}
           </div>
-        ) : (
+        ) : viewMode === 'vibes' ? (
           // Vibes mode - flowing waves
           <div className="relative w-full h-full">
             {/* Vibes background effect */}
@@ -191,21 +216,68 @@ export function HomePage() {
               />
             ))}
           </div>
+        ) : (
+          // Hyperspace mode - radiating light streams
+          <div className="relative w-full h-full">
+            {/* Hyperspace background effect */}
+            <div className="absolute inset-0">
+              <div className="h-full w-full bg-black">
+                {/* Radial gradient overlay */}
+                <div 
+                  className="absolute inset-0"
+                  style={{
+                    background: 'radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.8) 70%, black 100%)',
+                  }}
+                />
+              </div>
+            </div>
+            
+            {/* All voice notes rendered as overlapping streams */}
+            <div className="absolute inset-0">
+              {memoizedVoiceNotes.map((voiceNote, index) => (
+                <HyperspaceVoiceStream
+                  key={voiceNote.id}
+                  voiceNote={voiceNote}
+                  index={index}
+                  totalStreams={memoizedVoiceNotes.length || 1}
+                />
+              ))}
+            </div>
+          </div>
         )}
         
         {isLoading && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            <div className={`text-xs ${viewMode === 'matrix' ? 'text-green-700 font-mono' : viewMode === 'vibes' ? 'text-purple-700' : 'text-gray-700'}`}>
-              {viewMode === 'matrix' ? 'connecting to matrix...' : viewMode === 'vibes' ? 'tuning into the vibes...' : 'listening to the void...'}
+            <div className={`text-xs ${
+              viewMode === 'matrix' ? 'text-green-700 font-mono' : 
+              viewMode === 'vibes' ? 'text-purple-700' : 
+              viewMode === 'hyperspace' ? 'text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-yellow-400 to-blue-400' :
+              'text-gray-700'
+            }`}>
+              {viewMode === 'matrix' ? 'connecting to matrix...' : 
+               viewMode === 'vibes' ? 'tuning into the vibes...' : 
+               viewMode === 'hyperspace' ? 'entering hyperspace...' :
+               'listening to the void...'}
             </div>
           </div>
         )}
         
         {!isLoading && memoizedVoiceNotes.length === 0 && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            <div className={`text-xs text-center ${viewMode === 'matrix' ? 'text-green-700 font-mono' : viewMode === 'vibes' ? 'text-purple-700' : 'text-gray-700'}`}>
-              <div>{viewMode === 'matrix' ? 'no signals detected' : viewMode === 'vibes' ? 'no vibes yet' : 'the cosmos is silent'}</div>
-              <div className="mt-2">{viewMode === 'matrix' ? 'upload your voice' : viewMode === 'vibes' ? 'share your vibe' : 'be the first voice'}</div>
+            <div className={`text-xs text-center ${
+              viewMode === 'matrix' ? 'text-green-700 font-mono' : 
+              viewMode === 'vibes' ? 'text-purple-700' : 
+              viewMode === 'hyperspace' ? 'text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-yellow-400 to-blue-400' :
+              'text-gray-700'
+            }`}>
+              <div>{viewMode === 'matrix' ? 'no signals detected' : 
+                    viewMode === 'vibes' ? 'no vibes yet' : 
+                    viewMode === 'hyperspace' ? 'hyperspace empty' :
+                    'the cosmos is silent'}</div>
+              <div className="mt-2">{viewMode === 'matrix' ? 'upload your voice' : 
+                                    viewMode === 'vibes' ? 'share your vibe' : 
+                                    viewMode === 'hyperspace' ? 'launch your voice' :
+                                    'be the first voice'}</div>
             </div>
           </div>
         )}
@@ -215,8 +287,16 @@ export function HomePage() {
       <RecordButton />
       
       {/* Instructions */}
-      <div className={`absolute bottom-8 left-8 text-xs ${viewMode === 'matrix' ? 'text-green-700 font-mono' : viewMode === 'vibes' ? 'text-purple-700' : 'text-gray-700'}`}>
-        {viewMode === 'matrix' ? 'hover bars to decode • click + to transmit' : viewMode === 'vibes' ? 'click waves to feel • click + to vibe' : 'click to listen • click + to speak'}
+      <div className={`absolute bottom-8 left-8 text-xs ${
+        viewMode === 'matrix' ? 'text-green-700 font-mono' : 
+        viewMode === 'vibes' ? 'text-purple-700' : 
+        viewMode === 'hyperspace' ? 'text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-yellow-400 to-blue-400' :
+        'text-gray-700'
+      }`}>
+        {viewMode === 'matrix' ? 'hover bars to decode • click + to transmit' : 
+         viewMode === 'vibes' ? 'click waves to feel • click + to vibe' : 
+         viewMode === 'hyperspace' ? 'click streams to activate • click + to launch' :
+         'click to listen • click + to speak'}
       </div>
     </div>
   );

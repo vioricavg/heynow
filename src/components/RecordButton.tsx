@@ -189,6 +189,8 @@ export function RecordButton() {
             ? 'bg-green-900/50 hover:bg-green-800/50 backdrop-blur border border-green-500/50'
             : viewMode === 'vibes'
             ? 'bg-purple-900/50 hover:bg-purple-800/50 backdrop-blur border border-purple-500/50'
+            : viewMode === 'hyperspace'
+            ? 'bg-black/50 hover:bg-black/70 backdrop-blur border border-transparent'
             : 'bg-white/10 hover:bg-white/20 backdrop-blur'
         }
         ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}
@@ -200,17 +202,32 @@ export function RecordButton() {
           ? '0 0 20px rgba(34, 197, 94, 0.5)' 
           : viewMode === 'vibes' && !isRecording
           ? '0 0 20px rgba(147, 51, 234, 0.5)'
-          : undefined
+          : viewMode === 'hyperspace' && !isRecording
+          ? '0 0 30px rgba(255, 255, 255, 0.3)'
+          : undefined,
+        borderImage: viewMode === 'hyperspace' && !isRecording
+          ? 'linear-gradient(45deg, #ff0080, #ff8c00, #ffd700, #00ff00, #00ffff, #0080ff, #ff0080) 1'
+          : undefined,
+        borderWidth: viewMode === 'hyperspace' ? '2px' : undefined,
+        borderStyle: viewMode === 'hyperspace' ? 'solid' : undefined,
       }}
     >
       {isUploading ? (
         <div className={`animate-spin rounded-full h-6 w-6 border-2 ${
-          viewMode === 'matrix' ? 'border-green-400' : viewMode === 'vibes' ? 'border-purple-400' : 'border-white'
+          viewMode === 'matrix' ? 'border-green-400' : 
+          viewMode === 'vibes' ? 'border-purple-400' : 
+          viewMode === 'hyperspace' ? 'border-white' :
+          'border-white'
         } border-t-transparent`} />
       ) : isRecording ? (
         <Mic className="w-6 h-6 text-white" />
       ) : (
-        <Plus className={`w-6 h-6 ${viewMode === 'matrix' ? 'text-green-400' : viewMode === 'vibes' ? 'text-purple-400' : 'text-white'}`} />
+        <Plus className={`w-6 h-6 ${
+          viewMode === 'matrix' ? 'text-green-400' : 
+          viewMode === 'vibes' ? 'text-purple-400' : 
+          viewMode === 'hyperspace' ? 'text-white' :
+          'text-white'
+        }`} />
       )}
     </button>
   );
