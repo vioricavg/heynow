@@ -25,6 +25,49 @@ export function VoiceNote({ voiceNote }: VoiceNoteProps) {
   const displayName = metadata?.name || voiceNote.author.slice(0, 8);
   const isOwnNote = user?.publicKey === voiceNote.author;
   
+  // Calculate initial opacity
+  const calculateInitialOpacity = () => {
+    const now = Math.floor(Date.now() / 1000);
+    const age = now - voiceNote.timestamp;
+    const maxAge = 10 * 60; // 10 minutes in seconds
+    const fadeStartAge = 9 * 60; // Start fading at 9 minutes
+    
+    if (age >= maxAge) {
+      return 0;
+    } else if (age >= fadeStartAge) {
+      // Linear fade from 1 to 0 over the last minute
+      const fadeProgress = (age - fadeStartAge) / (maxAge - fadeStartAge);
+      return 1 - fadeProgress;
+    }
+    return 1;
+  };
+  
+  const [opacity, setOpacity] = useState(calculateInitialOpacity());
+  
+  // Update opacity periodically
+  useEffect(() => {
+    const updateOpacity = () => {
+      const now = Math.floor(Date.now() / 1000);
+      const age = now - voiceNote.timestamp;
+      const maxAge = 10 * 60; // 10 minutes in seconds
+      const fadeStartAge = 9 * 60; // Start fading at 9 minutes
+      
+      if (age >= maxAge) {
+        setOpacity(0);
+      } else if (age >= fadeStartAge) {
+        // Linear fade from 1 to 0 over the last minute
+        const fadeProgress = (age - fadeStartAge) / (maxAge - fadeStartAge);
+        setOpacity(1 - fadeProgress);
+      } else {
+        setOpacity(1);
+      }
+    };
+    
+    const interval = setInterval(updateOpacity, 1000); // Update every second
+    
+    return () => clearInterval(interval);
+  }, [voiceNote.timestamp]);
+  
   // Random movement parameters for each orb
   const movementParams = useRef({
     speedX: (Math.random() - 0.5) * 0.04, // -0.02 to 0.02 per frame (faster)
@@ -356,7 +399,7 @@ export function VoiceNote({ voiceNote }: VoiceNoteProps) {
         onClick={handleClick}
       >
       {/* Container for all orb elements */}
-      <div className="relative" style={{ width: '48px', height: '48px' }}>
+      <div className="relative transition-opacity duration-1000" style={{ width: '48px', height: '48px', opacity }}>
         {/* Outer glow */}
         <div
           className="absolute rounded-full blur-xl"
