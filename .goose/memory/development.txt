@@ -91,3 +91,22 @@ heynow project - added fade out for aging voice notes:
 - orbs completely disappear at 10 minutes
 - maintains temporal nature of the app
 
+# heynow voicenotes temporal time-window
+heynow project - changed time window to 5 minutes:
+- voice notes now only display for the last 5 minutes (was 10 minutes)
+- orbs start fading at 4 minutes old (was 9 minutes)
+- linear fade from full opacity to transparent over the last minute
+- updated README to reflect 5-minute window
+- makes the app more ephemeral and dynamic
+
+# heynow performance optimization cleanup
+heynow project - performance optimization and cleanup:
+- reduced CSS from 63KB to 12KB (80% reduction)
+- reduced JS from 404KB to 387KB 
+- removed all unused components (auth, ui components, pages)
+- reduced dependencies from 65+ to 11 essential ones
+- memoized VoiceNote component for better performance
+- removed react-router since it's a single page app
+- simplified tailwind config and removed CSS variables
+- clean, minimal codebase focused only on voice notes
+

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, memo, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { VoiceNote as VoiceNoteType } from '@/hooks/useVoiceNotes';
 import { useAuthor } from '@/hooks/useAuthor';
@@ -9,7 +9,7 @@ interface VoiceNoteProps {
   voiceNote: VoiceNoteType;
 }
 
-export function VoiceNote({ voiceNote }: VoiceNoteProps) {
+export const VoiceNote = memo(function VoiceNote({ voiceNote }: VoiceNoteProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
@@ -240,7 +240,7 @@ export function VoiceNote({ voiceNote }: VoiceNoteProps) {
   };
 
   // Generate a color for non-own notes (using publicKey for consistency)
-  const getOrbColor = () => {
+  const orbColor = useMemo(() => {
     if (isOwnNote) return 'rgb(74 222 128)'; // green-400
     
     // Extended color palette with even more variety
@@ -265,122 +265,11 @@ export function VoiceNote({ voiceNote }: VoiceNoteProps) {
       'rgb(220 38 38)',  // red-600
       'rgb(37 99 235)',  // blue-600
       'rgb(251 191 36)', // amber-400
-      'rgb(252 165 165)', // red-300
-      'rgb(253 186 116)', // orange-300
-      'rgb(253 224 71)', // yellow-300
-      'rgb(134 239 172)', // green-300
-      'rgb(147 197 253)', // blue-300
-      'rgb(196 181 253)', // purple-300
-      'rgb(249 168 212)', // pink-300
-      'rgb(165 243 252)', // cyan-300
-      'rgb(233 213 255)', // purple-200
-      'rgb(254 202 202)', // red-200
-      'rgb(254 215 170)', // orange-200
-      'rgb(254 240 138)', // yellow-200
-      'rgb(187 247 208)', // green-200
-      'rgb(191 219 254)', // blue-200
-      'rgb(221 214 254)', // purple-200
-      'rgb(251 207 232)', // pink-200
-      'rgb(207 250 254)', // cyan-200
-      'rgb(248 113 113)', // red-400
-      'rgb(96 165 250)', // blue-400
-      'rgb(167 139 250)', // purple-400
-      'rgb(244 114 182)', // pink-400
-      'rgb(34 211 238)', // cyan-400
-      'rgb(129 140 248)', // indigo-400
-      'rgb(52 211 153)', // emerald-400
-      'rgb(45 212 191)', // teal-400
-      'rgb(56 189 248)', // sky-400
-      'rgb(192 132 252)', // violet-400
-      'rgb(232 121 249)', // fuchsia-400
-      'rgb(250 176 5)', // yellow-500
-      'rgb(234 179 8)', // yellow-600
-      'rgb(202 138 4)', // yellow-700
-      'rgb(161 98 7)', // yellow-800
-      'rgb(234 88 12)', // orange-600
-      'rgb(194 65 12)', // orange-700
-      'rgb(154 52 18)', // orange-800
-      'rgb(127 29 29)', // red-800
-      'rgb(153 27 27)', // red-900
-      'rgb(30 41 59)', // slate-800
-      'rgb(51 65 85)', // slate-700
-      'rgb(71 85 105)', // slate-600
-      'rgb(100 116 139)', // slate-500
-      'rgb(148 163 184)', // slate-400
-      'rgb(203 213 225)', // slate-300
-      'rgb(31 41 55)', // gray-800
-      'rgb(55 65 81)', // gray-700
-      'rgb(75 85 99)', // gray-600
-      'rgb(107 114 128)', // gray-500
-      'rgb(156 163 175)', // gray-400
-      'rgb(209 213 219)', // gray-300
-      // Additional vibrant colors
-      'rgb(255 0 128)', // hot pink
-      'rgb(0 255 255)', // aqua
-      'rgb(255 128 0)', // dark orange
-      'rgb(128 0 255)', // purple
-      'rgb(0 255 128)', // spring green
-      'rgb(255 0 255)', // magenta
-      'rgb(128 255 0)', // lime
-      'rgb(0 128 255)', // sky blue
-      'rgb(255 255 0)', // yellow
-      'rgb(255 0 64)',  // crimson
-      'rgb(0 255 192)', // turquoise
-      'rgb(255 192 0)', // gold
-      'rgb(192 0 255)', // violet
-      'rgb(0 192 255)', // light blue
-      'rgb(255 64 0)',  // red orange
-      'rgb(64 0 255)',  // indigo
-      'rgb(0 255 64)',  // green
-      'rgb(255 128 128)', // light coral
-      'rgb(128 255 128)', // light green
-      'rgb(128 128 255)', // light blue
-      'rgb(255 128 255)', // light magenta
-      'rgb(128 255 255)', // light cyan
-      'rgb(255 255 128)', // light yellow
-      'rgb(192 192 192)', // silver
-      'rgb(255 192 203)', // pink
-      'rgb(255 218 185)', // peach puff
-      'rgb(255 228 196)', // bisque
-      'rgb(255 248 220)', // cornsilk
-      'rgb(255 255 240)', // ivory
-      'rgb(240 248 255)', // alice blue
-      'rgb(230 230 250)', // lavender
-      'rgb(216 191 216)', // thistle
-      'rgb(221 160 221)', // plum
-      'rgb(238 130 238)', // violet
-      'rgb(255 105 180)', // hot pink
-      'rgb(255 20 147)',  // deep pink
-      'rgb(255 69 0)',    // orange red
-      'rgb(255 140 0)',   // dark orange
-      'rgb(255 165 0)',   // orange
-      'rgb(255 215 0)',   // gold
-      'rgb(255 228 181)', // moccasin
-      'rgb(255 222 173)', // navajo white
-      'rgb(255 228 225)', // misty rose
-      'rgb(255 240 245)', // lavender blush
-      'rgb(250 235 215)', // antique white
-      'rgb(250 250 210)', // light goldenrod yellow
-      'rgb(255 250 205)', // lemon chiffon
-      'rgb(240 255 240)', // honeydew
-      'rgb(245 255 250)', // mint cream
-      'rgb(240 255 255)', // azure
-      'rgb(240 248 255)', // alice blue
-      'rgb(248 248 255)', // ghost white
-      'rgb(245 245 245)', // white smoke
-      'rgb(255 245 238)', // seashell
-      'rgb(245 245 220)', // beige
-      'rgb(253 245 230)', // old lace
-      'rgb(255 250 240)', // floral white
-      'rgb(255 255 240)', // ivory
-      'rgb(250 240 230)', // linen
     ];
     
     const index = parseInt(voiceNote.author.slice(0, 8), 16) % colors.length;
     return colors[index];
-  };
-  
-  const orbColor = getOrbColor();
+  }, [isOwnNote, voiceNote.author]);
   
   return (
     <>
@@ -491,4 +380,4 @@ export function VoiceNote({ voiceNote }: VoiceNoteProps) {
     )}
     </>
   );
-}
+});

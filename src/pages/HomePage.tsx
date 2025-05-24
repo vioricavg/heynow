@@ -13,44 +13,9 @@ export function HomePage() {
   usePublishProfile();
 
   useEffect(() => {
-    // Add custom styles for floating and breathing animations
+    // Add animation styles once
     const style = document.createElement('style');
     style.textContent = `
-      @keyframes float {
-        0%, 100% {
-          transform: translate(-50%, -50%) translateY(0px) translateX(0px);
-        }
-        25% {
-          transform: translate(-50%, -50%) translateY(-30px) translateX(10px);
-        }
-        50% {
-          transform: translate(-50%, -50%) translateY(15px) translateX(-5px);
-        }
-        75% {
-          transform: translate(-50%, -50%) translateY(-10px) translateX(-10px);
-        }
-      }
-      
-      @keyframes breathe {
-        0%, 100% {
-          transform: translate(-50%, -50%) scale(1);
-          opacity: inherit;
-        }
-        50% {
-          transform: translate(-50%, -50%) scale(1.15);
-          opacity: calc(inherit * 1.3);
-        }
-      }
-      
-      @keyframes slowPulse {
-        0%, 100% {
-          opacity: 1;
-        }
-        50% {
-          opacity: 0.5;
-        }
-      }
-      
       @keyframes fadeIn {
         0% {
           opacity: 0;
@@ -72,6 +37,26 @@ export function HomePage() {
           opacity: 1;
           transform: translate(-50%, 0) scale(1);
           filter: blur(0);
+        }
+      }
+      
+      @keyframes breathe {
+        0%, 100% {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: inherit;
+        }
+        50% {
+          transform: translate(-50%, -50%) scale(1.15);
+          opacity: calc(inherit * 1.3);
+        }
+      }
+      
+      @keyframes slowPulse {
+        0%, 100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
         }
       }
     `;
