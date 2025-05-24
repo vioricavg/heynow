@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useVoiceNotes } from '@/hooks/useVoiceNotes';
 import { useAutoAccount } from '@/hooks/useAutoAccount';
 import { usePublishProfile } from '@/hooks/usePublishProfile';
@@ -19,13 +19,13 @@ export function HomePage() {
   // Publish profile metadata
   usePublishProfile();
   
-  const handlePositionUpdate = (id: string, position: { x: number; y: number }) => {
+  const handlePositionUpdate = useCallback((id: string, position: { x: number; y: number }) => {
     setPositions(prev => {
       const newMap = new Map(prev);
       newMap.set(id, position);
       return newMap;
     });
-  };
+  }, []);
 
   useEffect(() => {
     // Add custom styles for floating and breathing animations

@@ -30,15 +30,20 @@ export function VoiceNote({ voiceNote, allVoiceNotes, positions, onPositionUpdat
   
   // Random movement parameters for each orb
   const movementParams = useRef({
-    speedX: (Math.random() - 0.5) * 0.002, // -0.001 to 0.001 per frame
-    speedY: (Math.random() - 0.5) * 0.002,
+    speedX: (Math.random() - 0.5) * 0.01, // -0.005 to 0.005 per frame
+    speedY: (Math.random() - 0.5) * 0.01,
     wobbleX: Math.random() * Math.PI * 2,
     wobbleY: Math.random() * Math.PI * 2,
     wobbleSpeedX: 0.0001 + Math.random() * 0.0001,
     wobbleSpeedY: 0.0001 + Math.random() * 0.0001,
-    wobbleAmplitudeX: 1 + Math.random() * 1.5,
-    wobbleAmplitudeY: 1 + Math.random() * 1.5,
+    wobbleAmplitudeX: 0.5 + Math.random() * 1,
+    wobbleAmplitudeY: 0.5 + Math.random() * 1,
   }).current;
+  
+  // Update position in parent component
+  useEffect(() => {
+    onPositionUpdate(voiceNote.id, position);
+  }, [position, voiceNote.id, onPositionUpdate]);
   
   useEffect(() => {
     if (audioRef.current) {
@@ -78,54 +83,51 @@ export function VoiceNote({ voiceNote, allVoiceNotes, positions, onPositionUpdat
           
           // Define orb radius once
           const orbRadius = 3; // Approximate radius in percentage
+          const padding = 3; // 3% from edge
           
-          // Check collision with other orbs
+          // Simple edge bouncing - check position without collision first
+          if (newX <= padding) {
+            newX = padding + 0.1;
+            movementParams.speedX = Math.abs(movementParams.speedX) * 0.8;
+          } else if (newX >= 100 - padding) {
+            newX = 100 - padding - 0.1;
+            movementParams.speedX = -Math.abs(movementParams.speedX) * 0.8;
+          }
+          
+          if (newY <= padding) {
+            newY = padding + 0.1;
+            movementParams.speedY = Math.abs(movementParams.speedY) * 0.8;
+          } else if (newY >= 100 - padding) {
+            newY = 100 - padding - 0.1;
+            movementParams.speedY = -Math.abs(movementParams.speedY) * 0.8;
+          }
+          
+          // Check collision with other orbs only after edge handling
+          let collisionOccurred = false;
           allVoiceNotes.forEach(otherNote => {
-            if (otherNote.id !== voiceNote.id) {
+            if (otherNote.id !== voiceNote.id && !collisionOccurred) {
               const otherPos = positions.get(otherNote.id) || { x: otherNote.x || 50, y: otherNote.y || 50 };
               const dx = newX - otherPos.x;
               const dy = newY - otherPos.y;
               const distance = Math.sqrt(dx * dx + dy * dy);
               
-              if (distance < orbRadius * 2) {
-                // Collision detected, bounce away
-                const angle = Math.atan2(dy, dx);
-                const targetDistance = orbRadius * 2;
-                const pushDistance = targetDistance - distance;
-                
-                newX += Math.cos(angle) * pushDistance * 0.5;
-                newY += Math.sin(angle) * pushDistance * 0.5;
-                
-                // Reverse velocity
+              if (distance < orbRadius * 2 && distance > 0) {
+                // Simple bounce - just reverse direction
                 movementParams.speedX *= -0.8;
                 movementParams.speedY *= -0.8;
+                collisionOccurred = true;
+                
+                // Move away from collision
+                const angle = Math.atan2(dy, dx);
+                newX = otherPos.x + Math.cos(angle) * orbRadius * 2.1;
+                newY = otherPos.y + Math.sin(angle) * orbRadius * 2.1;
               }
             }
           });
           
-          // Bounce off edges with some padding
-          const padding = 5; // 5% from edge
-          
-          // Check X boundaries
-          if (newX <= padding + orbRadius) {
-            movementParams.speedX = Math.abs(movementParams.speedX); // Force positive
-            newX = padding + orbRadius + 0.1; // Push slightly inside
-          } else if (newX >= 100 - padding - orbRadius) {
-            movementParams.speedX = -Math.abs(movementParams.speedX); // Force negative
-            newX = 100 - padding - orbRadius - 0.1; // Push slightly inside
-          }
-          
-          // Check Y boundaries
-          if (newY <= padding + orbRadius) {
-            movementParams.speedY = Math.abs(movementParams.speedY); // Force positive
-            newY = padding + orbRadius + 0.1; // Push slightly inside
-          } else if (newY >= 100 - padding - orbRadius) {
-            movementParams.speedY = -Math.abs(movementParams.speedY); // Force negative
-            newY = 100 - padding - orbRadius - 0.1; // Push slightly inside
-          }
-          
-          // Update shared position
-          onPositionUpdate(voiceNote.id, { x: newX, y: newY });
+          // Ensure position stays in bounds
+          newX = Math.max(padding, Math.min(100 - padding, newX));
+          newY = Math.max(padding, Math.min(100 - padding, newY));
           
           return { x: newX, y: newY };
         });
@@ -141,7 +143,7 @@ export function VoiceNote({ voiceNote, allVoiceNotes, positions, onPositionUpdat
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [isHovered, movementParams, voiceNote.id, allVoiceNotes, positions, onPositionUpdate]);
+  }, [isHovered, movementParams, voiceNote.id, allVoiceNotes, positions]);
 
   const handleMouseEnter = () => {
     setIsHovered(true);
