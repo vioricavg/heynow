@@ -124,8 +124,19 @@ export const VibesVoiceWave = memo(function VibesVoiceWave({ voiceNote, index, t
     return path;
   };
   
-  // Position wave vertically
-  const yPosition = 15 + (index / Math.max(totalWaves - 1, 1)) * 70;
+  // Position wave vertically - use a persistent random position based on note ID
+  const getRandomPosition = (id: string) => {
+    // Create a simple hash from the ID to get a consistent random value
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+      hash = ((hash << 5) - hash) + id.charCodeAt(i);
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    // Convert to a position between 15% and 85%
+    return 15 + (Math.abs(hash) % 70);
+  };
+  
+  const yPosition = getRandomPosition(voiceNote.id);
   
   return (
     <div

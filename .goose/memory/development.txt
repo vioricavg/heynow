@@ -129,3 +129,11 @@ heynow project - added vibes mode:
 - updated all UI elements to support vibes mode
 - mode selector now has three options: cosmos, matrix, vibes
 
+# heynow voice-notes vibes-mode layout
+heynow project - randomized vibes mode placement:
+- voice waves in vibes mode now appear at random vertical positions
+- position is based on hash of voice note ID (consistent for each note)
+- waves distributed between 15% and 85% of screen height
+- no longer arranged in chronological order
+- each voice note maintains its position throughout its lifetime
+
