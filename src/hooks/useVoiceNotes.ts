@@ -42,9 +42,9 @@ export function useVoiceNotes() {
         
         const events = await nostr.query([{ kinds: [1069], limit: 100 }], { signal });
         
-        // Get current timestamp and 15 minutes ago
+        // Get current timestamp and 21 minutes ago
         const now = Math.floor(Date.now() / 1000);
-        const fifteenMinutesAgo = now - (15 * 60); // 15 minutes in seconds
+        const twentyOneMinutesAgo = now - (21 * 60); // 21 minutes in seconds
         
         // Parse voice notes with audio URLs
         const voiceNotes: VoiceNote[] = events
@@ -53,8 +53,8 @@ export function useVoiceNotes() {
             const audioTag = event.tags.find(tag => tag[0] === 'url' || tag[0] === 'r');
             const hasAudio = audioTag && audioTag[1];
             
-            // Check if event is within last 15 minutes
-            const isRecent = event.created_at >= fifteenMinutesAgo;
+            // Check if event is within last 21 minutes
+            const isRecent = event.created_at >= twentyOneMinutesAgo;
             
             return hasAudio && isRecent;
           })

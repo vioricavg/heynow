@@ -7,7 +7,7 @@
 - **Ephemeral Voice Communication**: Users can record and share short voice notes that appear as floating orbs on a black background
 - **Cosmic Theme**: The app has a space-like aesthetic with floating, glowing orbs representing voice notes
 - **No Persistence**: Each page refresh creates a new identity - private keys are never persisted, making each session truly ephemeral
-- **15-Minute Window**: Voice notes only display for the last 15 minutes, creating a sense of temporal presence
+- **21-Minute Window**: Voice notes only display for the last 21 minutes, creating a sense of temporal presence
 
 ## Technical Architecture
 

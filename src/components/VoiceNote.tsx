@@ -29,8 +29,8 @@ export const VoiceNote = memo(function VoiceNote({ voiceNote }: VoiceNoteProps) 
   const calculateInitialOpacity = () => {
     const now = Math.floor(Date.now() / 1000);
     const age = now - voiceNote.timestamp;
-    const maxAge = 15 * 60; // 15 minutes in seconds
-    const fadeStartAge = 14 * 60; // Start fading at 14 minutes
+    const maxAge = 21 * 60; // 21 minutes in seconds
+    const fadeStartAge = 20 * 60; // Start fading at 20 minutes
     
     if (age >= maxAge) {
       return 0;
@@ -49,8 +49,8 @@ export const VoiceNote = memo(function VoiceNote({ voiceNote }: VoiceNoteProps) 
     const updateOpacity = () => {
       const now = Math.floor(Date.now() / 1000);
       const age = now - voiceNote.timestamp;
-      const maxAge = 15 * 60; // 15 minutes in seconds
-      const fadeStartAge = 14 * 60; // Start fading at 14 minutes
+      const maxAge = 21 * 60; // 21 minutes in seconds
+      const fadeStartAge = 20 * 60; // Start fading at 20 minutes
       
       if (age >= maxAge) {
         setOpacity(0);
