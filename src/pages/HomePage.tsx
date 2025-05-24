@@ -67,6 +67,15 @@ export function HomePage() {
         }
       }
       
+      @keyframes pulse {
+        0%, 100% {
+          opacity: 0.8;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+      
       @keyframes matrixFall {
         0% {
           transform: translateX(-50%) translateY(-100%);
@@ -163,6 +172,23 @@ export function HomePage() {
             {/* Matrix background effect */}
             <div className="absolute inset-0 opacity-10">
               <div className="h-full w-full bg-gradient-to-b from-green-400/20 to-transparent" />
+            </div>
+            
+            {/* Ambient matrix rain effect */}
+            <div className="absolute inset-0 opacity-5 pointer-events-none">
+              {Array.from({ length: 20 }, (_, i) => (
+                <div
+                  key={i}
+                  className="absolute text-green-500 font-mono text-xs"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    animation: `matrixFall ${10 + Math.random() * 10}s linear infinite`,
+                    animationDelay: `${Math.random() * 10}s`,
+                  }}
+                >
+                  {String.fromCharCode(0x30A0 + Math.random() * 96)}
+                </div>
+              ))}
             </div>
             
             {memoizedVoiceNotes.map((voiceNote, index) => (

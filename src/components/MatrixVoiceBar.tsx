@@ -103,20 +103,44 @@ export const MatrixVoiceBar = memo(function MatrixVoiceBar({ voiceNote, index, t
   const barWidth = 100 / Math.max(totalBars, 10); // Ensure minimum bar count for width calculation
   
   // Generate falling characters
-  const [characters, setCharacters] = useState<Array<{ char: string; offset: number }>>([]);
+  const [characters, setCharacters] = useState<Array<{ char: string; offset: number; speed: number }>>([]);
   
   useEffect(() => {
     // Generate random characters for this bar
-    const chars: Array<{ char: string; offset: number }> = [];
+    const chars: Array<{ char: string; offset: number; speed: number }> = [];
     const charCount = Math.floor(window.innerHeight / 20); // One character per 20px
     
     for (let i = 0; i < charCount; i++) {
       chars.push({
         char: String.fromCharCode(0x30A0 + Math.random() * 96), // Random katakana
-        offset: Math.random() * 100
+        offset: Math.random() * 100,
+        speed: 10 + Math.random() * 20 // Random fall speed between 10-30
       });
     }
     setCharacters(chars);
+  }, []);
+  
+  // Continuously update character positions
+  useEffect(() => {
+    let animationId: number;
+    
+    const animate = () => {
+      setCharacters(prevChars => 
+        prevChars.map(char => ({
+          ...char,
+          offset: (char.offset + char.speed / 60) % 110, // Move based on speed, wrap around at 110%
+          // Randomly change character occasionally
+          char: Math.random() < 0.02 
+            ? String.fromCharCode(0x30A0 + Math.random() * 96)
+            : char.char
+        }))
+      );
+      animationId = requestAnimationFrame(animate);
+    };
+    
+    animationId = requestAnimationFrame(animate);
+    
+    return () => cancelAnimationFrame(animationId);
   }, []);
   
   // Fade in animation for new bars
@@ -149,15 +173,21 @@ export const MatrixVoiceBar = memo(function MatrixVoiceBar({ voiceNote, index, t
             key={i}
             className="absolute text-green-400 font-mono text-sm"
             style={{
-              top: `${(char.offset + (isPlaying ? Date.now() / 50 : 0)) % 100}%`,
+              top: `${char.offset}%`,
               left: '50%',
               transform: 'translateX(-50%)',
-              opacity: isOwnNote ? 1 : 0.3 + (isPlaying ? 0.4 : 0),
-              animation: isPlaying ? 'matrixFall 3s linear infinite' : 'none',
-              animationDelay: `${i * 0.1}s`,
+              opacity: char.offset > 100 ? 0 : // Fade out at bottom
+                      isOwnNote ? 0.7 : // Brighter for own notes
+                      0.2 + (isPlaying ? 0.4 : 0), // Dimmer for others, brighter when playing
+              transition: 'opacity 0.5s ease-in-out',
               textShadow: isOwnNote 
                 ? '0 0 5px #00ff00, 0 0 10px #00ff00' 
-                : '0 0 3px #00ff00',
+                : isPlaying 
+                  ? '0 0 5px #00ff00'
+                  : '0 0 2px #00ff00',
+              // Add subtle animation for variety
+              animation: 'pulse 4s ease-in-out infinite',
+              animationDelay: `${i * 0.2}s`,
             }}
           >
             {char.char}

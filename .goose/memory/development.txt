@@ -147,3 +147,13 @@ heynow project - added hover support to vibes mode:
 - clicking still toggles play/pause manually
 - updated instructions to say "hover waves to feel"
 
+# heynow voice-notes matrix-mode animation
+heynow project - added continuous animation to matrix mode:
+- matrix characters now continuously fall at different speeds
+- characters randomly change as they fall (2% chance per frame)
+- added subtle pulse animation to characters
+- ambient background rain effect with 20 characters
+- characters fade out at bottom and wrap around to top
+- animations continue even when voice notes aren't playing
+- creates more dynamic, living matrix effect
+
