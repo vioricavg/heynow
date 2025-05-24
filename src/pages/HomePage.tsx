@@ -216,7 +216,7 @@ export function HomePage() {
       
       {/* Instructions */}
       <div className={`absolute bottom-8 left-8 text-xs ${viewMode === 'matrix' ? 'text-green-700 font-mono' : viewMode === 'vibes' ? 'text-purple-700' : 'text-gray-700'}`}>
-        {viewMode === 'matrix' ? 'hover bars to decode • click + to transmit' : viewMode === 'vibes' ? 'click waves to feel • click + to vibe' : 'click to listen • click + to speak'}
+        {viewMode === 'matrix' ? 'hover bars to decode • click + to transmit' : viewMode === 'vibes' ? 'hover waves to feel • click + to vibe' : 'hover to listen • click + to speak'}
       </div>
     </div>
   );

@@ -137,3 +137,13 @@ heynow project - randomized vibes mode placement:
 - no longer arranged in chronological order
 - each voice note maintains its position throughout its lifetime
 
+# heynow voice-notes vibes-mode hover interaction
+heynow project - added hover support to vibes mode:
+- voice waves now respond to hover interactions
+- hovering over a wave automatically plays the audio
+- waves expand and glow on hover (same as when playing)
+- voice info bubble appears on hover
+- mouse leave stops playback and resets wave
+- clicking still toggles play/pause manually
+- updated instructions to say "hover waves to feel"
+

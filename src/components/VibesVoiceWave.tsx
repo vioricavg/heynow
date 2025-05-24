@@ -12,6 +12,7 @@ interface VibesVoiceWaveProps {
 
 export const VibesVoiceWave = memo(function VibesVoiceWave({ voiceNote, index, totalWaves }: VibesVoiceWaveProps) {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const [waveOffset, setWaveOffset] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
   const author = useAuthor(voiceNote.author);
@@ -67,6 +68,31 @@ export const VibesVoiceWave = memo(function VibesVoiceWave({ voiceNote, index, t
     };
   }, [isPlaying]);
   
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    
+    if (audioRef.current && !isPlaying) {
+      audioRef.current.play()
+        .then(() => {
+          setIsPlaying(true);
+        })
+        .catch((error) => {
+          // Handle autoplay policy restrictions
+          console.log('Autoplay blocked:', error);
+        });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    
+    if (audioRef.current && isPlaying) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsPlaying(false);
+    }
+  };
+
   const handleClick = () => {
     if (!audioRef.current) return;
     
@@ -109,7 +135,7 @@ export const VibesVoiceWave = memo(function VibesVoiceWave({ voiceNote, index, t
   const generateWavePath = () => {
     const width = window.innerWidth;
     const points = 50;
-    const amplitude = isPlaying ? 30 : 15;
+    const amplitude = isHovered || isPlaying ? 30 : 15;
     const frequency = 2;
     
     let path = `M 0 50`;
@@ -147,6 +173,8 @@ export const VibesVoiceWave = memo(function VibesVoiceWave({ voiceNote, index, t
         opacity,
         transition: 'opacity 1s ease',
       }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       onClick={handleClick}
     >
       {/* Wave visualization */}
@@ -154,7 +182,7 @@ export const VibesVoiceWave = memo(function VibesVoiceWave({ voiceNote, index, t
         className="absolute w-full"
         height="100"
         style={{
-          filter: isPlaying ? `drop-shadow(0 0 15px ${colorScheme.glow})` : 'none',
+          filter: isHovered || isPlaying ? `drop-shadow(0 0 15px ${colorScheme.glow})` : 'none',
           transition: 'filter 0.3s ease',
         }}
       >
@@ -170,7 +198,7 @@ export const VibesVoiceWave = memo(function VibesVoiceWave({ voiceNote, index, t
           d={generateWavePath()}
           fill="none"
           stroke={`url(#wave-gradient-${voiceNote.id})`}
-          strokeWidth={isPlaying ? 3 : 2}
+          strokeWidth={isHovered || isPlaying ? 3 : 2}
           style={{
             transition: 'stroke-width 0.3s ease',
           }}
@@ -180,7 +208,7 @@ export const VibesVoiceWave = memo(function VibesVoiceWave({ voiceNote, index, t
         <circle
           cx={window.innerWidth / 2}
           cy="50"
-          r={isPlaying ? 5 : 3}
+          r={isHovered || isPlaying ? 5 : 3}
           fill={colorScheme.primary}
           style={{
             transition: 'r 0.3s ease',
@@ -192,7 +220,7 @@ export const VibesVoiceWave = memo(function VibesVoiceWave({ voiceNote, index, t
       <div
         className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"
         style={{
-          opacity: isPlaying ? 1 : 0,
+          opacity: isHovered ? 1 : 0,
           transition: 'opacity 0.3s ease',
         }}
       >
