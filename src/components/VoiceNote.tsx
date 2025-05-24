@@ -434,18 +434,14 @@ export function VoiceNote({ voiceNote }: VoiceNoteProps) {
           animation: 'toastFadeIn 0.5s ease-out forwards',
         }}
       >
-        <div className="bg-black/80 backdrop-blur-md px-4 py-2 rounded-full text-xs text-gray-300 shadow-2xl flex items-center gap-2 border border-gray-800">
-          <span className="font-medium text-white">{displayName}</span>
-          <span className="text-gray-500">•</span>
-          <span className="text-gray-400">
+        <div className="bg-black/80 backdrop-blur-md px-4 py-2 rounded-2xl text-xs text-gray-300 shadow-2xl border border-gray-800 text-center">
+          <div className="font-medium text-white">{displayName}</div>
+          <div className="text-gray-400 mt-1">
             {formatDistanceToNow(voiceNote.timestamp * 1000)} ago
-          </span>
-          {isOwnNote && (
-            <>
-              <span className="text-gray-500">•</span>
-              <span className="text-green-400/90 text-xs">your voice</span>
-            </>
-          )}
+            {isOwnNote && (
+              <span className="text-green-400/90 ml-2">• your voice</span>
+            )}
+          </div>
         </div>
       </div>,
       document.body
